@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with WS Backup Tool. If not, see <https://www.gnu.org/licenses/>. 
+ * with WS Backup Tool. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <stdbool.h>
@@ -472,6 +472,7 @@ static const char msg_write_flash[] = "Write Flash...";
 static const char msg_flash_mode_regular[] = "Mode: Regular";
 static const char msg_flash_mode_wonderwitch[] = "Mode: WonderWitch";
 static const char msg_flash_mode_flashmasta[] = "Mode: WSFM";
+static const char msg_flash_mode_mx[] = "Mode: MX29L32";
 
 // return offset
 static uint16_t xmf_acquire_kbyte(uint16_t kbyte) {
@@ -529,6 +530,7 @@ void menu_flash(void) {
 			case 0: entries[2].text = msg_flash_mode_regular; break;
 			case 1: entries[2].text = msg_flash_mode_wonderwitch; break;
 			case 2: entries[2].text = msg_flash_mode_flashmasta; break;
+			case 3: entries[2].text = msg_flash_mode_mx; break;
 		}
 
 		uint16_t result = ui_menu_run(&state, 3 + ((14 - entry_count) >> 1));
@@ -546,7 +548,7 @@ void menu_flash(void) {
 				kbytes - 64, kbytes + 64, false);
 			break;
 		case 2:
-			mode = (mode + 1) % 3;
+			mode = (mode + 1) % 4;
 			break;
 		case 4:
 			xmb_offset = (offset_from_end ^ 0xFFFF) - (kbytes - 1);
@@ -587,7 +589,7 @@ uint16_t menu_show_main(void) {
 
 	uint16_t result;
 	bool active = true;
-	while (active) {	
+	while (active) {
 		entries[entry_count - 1].text = (xm_baudrate == SERIAL_BAUD_38400) ? msg_baud_38400 : msg_baud_9600;
 		result = ui_menu_run(&state, 3 + ((14 - entry_count) >> 1));
 		if (result == entry_count - 1) {
@@ -639,7 +641,7 @@ void menu_main(void) {
 	}
 }
 
-static const char msg_title[] = "-= WS Backup Tool v0.2.0 =-";
+static const char msg_title[] = "-= WS Backup Tool v0.3.0 =-";
 
 int main(void) {
 	cpu_irq_disable();

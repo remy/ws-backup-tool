@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with WS Backup Tool. If not, see <https://www.gnu.org/licenses/>. 
+ * with WS Backup Tool. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <wonderful.h>
@@ -24,7 +24,7 @@
 	.global flash_erase
 
 	.align 2
-_driver_reset_flash:
+_driver_reset_flash: // not used? RS 2024-06-06
 	push ds
 	mov ax, 0x1000
 	mov ds, ax
@@ -56,7 +56,7 @@ flash_write:
 
 	mov si, ax
 	mov di, dx
-	
+
 	xor bx, bx
 	mov ds, bx
 	mov bx, 0x1000
@@ -64,6 +64,8 @@ flash_write:
 	mov bx, 0xAAAA
 
 	mov ax, [bp + 14]
+	cmp al, 3
+	je flash_write_mx
 	cmp al, 2
 	je flash_write_fast_flashmasta
 	cmp al, 1
@@ -109,6 +111,24 @@ flash_write_fast_wonderwitch_loop:
 	// stop bypass
 	mov byte ptr [bx], 0x90
 	mov byte ptr [bx], 0xF0
+
+	jmp flash_write_end
+
+flash_write_mx:
+	xor bx, bx
+	cld
+	.balign 2, 0x90
+
+flash_write_mx_loop:
+	mov byte ptr es:[0x5555], 0xAA
+	mov byte ptr es:[0x2AAA], 0x55
+	mov byte ptr es:[0x5555], 0xA0
+	movsb
+	call _flash_write_busyloop
+	loop flash_write_slow_loop // 5 cycles
+
+	push es
+	pop ds
 
 	jmp flash_write_end
 
